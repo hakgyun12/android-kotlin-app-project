@@ -30,7 +30,7 @@
             android:background="@drawable/btn_bg"
             android:text="Get Started"
             android:id="@+id/btnGetStarted"
-            android:visibility="invisible"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
