@@ -15,16 +15,16 @@ import org.techtown.recipeapp.entities.MealsItems
 import org.techtown.recipeapp.entities.converter.CategoryListConverter
 
 
-@Database(entities = [Recipes::class, CategoryItems::class, Category::class, Meal::class, MealsItems::class],version = 1,exportSchema = false)
-@TypeConverters(CategoryListConverter::class, MealListConverter::class)
+@Database(entities = [Recipes::class,CategoryItems::class,Category::class,Meal::class,MealsItems::class],version = 1,exportSchema = false)
+@TypeConverters(CategoryListConverter::class,MealListConverter::class)
 abstract class RecipeDatabase: RoomDatabase() {
 
     companion object{
 
-        @Volatile private var recipesDatabase: RecipeDatabase? = null
+        var recipesDatabase:RecipeDatabase? = null
 
         @Synchronized
-        fun getDatabase(context: Context): RecipeDatabase {
+        fun getDatabase(context: Context): RecipeDatabase{
             if (recipesDatabase == null){
                 recipesDatabase = Room.databaseBuilder(
                     context,
@@ -36,5 +36,5 @@ abstract class RecipeDatabase: RoomDatabase() {
         }
     }
 
-    abstract fun recipeDao(): RecipeDao
+    abstract fun recipeDao():RecipeDao
 }

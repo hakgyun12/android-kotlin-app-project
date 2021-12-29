@@ -8,19 +8,17 @@ import android.widget.Toast
 import org.techtown.recipeapp.database.RecipeDatabase
 import org.techtown.recipeapp.interfaces.GetDataService
 import kotlinx.coroutines.launch
-import org.techtown.recipeapp.databinding.ActivitySplashBinding
 import org.techtown.recipeapp.entities.Category
 import org.techtown.recipeapp.entities.Meal
 import org.techtown.recipeapp.entities.MealsItems
 import org.techtown.recipeapp.retofitclient.RetrofitClientInstance
 import pub.devrel.easypermissions.AppSettingsDialog
+import kotlinx.android.synthetic.main.activity_splash.*
 import pub.devrel.easypermissions.EasyPermissions
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
-
-private lateinit var binding : ActivitySplashBinding
 
 class SplashActivity : BaseActivity(), EasyPermissions.RationaleCallbacks,
     EasyPermissions.PermissionCallbacks {
@@ -31,9 +29,7 @@ class SplashActivity : BaseActivity(), EasyPermissions.RationaleCallbacks,
 
         readStorageTask()
 
-        binding = ActivitySplashBinding.inflate(layoutInflater)
-
-        binding.btnGetStarted.setOnClickListener {
+        btnGetStarted.setOnClickListener {
             var intent = Intent(this@SplashActivity, HomeActivity::class.java)
             startActivity(intent)
             finish()
@@ -72,7 +68,7 @@ class SplashActivity : BaseActivity(), EasyPermissions.RationaleCallbacks,
         call.enqueue(object : Callback<Meal> {
             override fun onFailure(call: Call<Meal>, t: Throwable) {
 
-                binding.loader.visibility = View.INVISIBLE
+                loader.visibility = View.INVISIBLE
                 Toast.makeText(this@SplashActivity, "Something went wrong", Toast.LENGTH_SHORT)
                     .show()
             }
@@ -122,7 +118,7 @@ class SplashActivity : BaseActivity(), EasyPermissions.RationaleCallbacks,
                     Log.d("mealData", arr.toString())
                 }
 
-                binding.btnGetStarted.visibility = View.VISIBLE
+                btnGetStarted.visibility = View.VISIBLE
             }
         }
 
@@ -184,4 +180,5 @@ class SplashActivity : BaseActivity(), EasyPermissions.RationaleCallbacks,
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
 
     }
+
 }

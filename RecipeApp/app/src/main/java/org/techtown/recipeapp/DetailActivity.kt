@@ -7,8 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.bumptech.glide.Glide
-import org.techtown.recipeapp.databinding.ActivityDetailBinding
-import org.techtown.recipeapp.databinding.ActivityHomeBinding
+import kotlinx.android.synthetic.main.activity_detail.*
 import org.techtown.recipeapp.entities.MealResponse
 import org.techtown.recipeapp.interfaces.GetDataService
 import org.techtown.recipeapp.retofitclient.RetrofitClientInstance
@@ -17,8 +16,6 @@ import retrofit2.Callback
 import retrofit2.Response
 
 
-private lateinit var binding : ActivityDetailBinding
-
 class DetailActivity : BaseActivity() {
 
     var youtubeLink = ""
@@ -26,17 +23,15 @@ class DetailActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        binding = ActivityDetailBinding.inflate(layoutInflater)
-
         var id = intent.getStringExtra("id")
 
         getSpecificItem(id!!)
 
-        binding.imgToolbarBtnBack.setOnClickListener {
+        imgToolbarBtnBack.setOnClickListener {
             finish()
         }
 
-        binding.btnYoutube.setOnClickListener {
+        btnYoutube.setOnClickListener {
             val uri = Uri.parse(youtubeLink)
             val intent = Intent(Intent.ACTION_VIEW, uri)
             startActivity(intent)
@@ -59,9 +54,9 @@ class DetailActivity : BaseActivity() {
                 response: Response<MealResponse>
             ) {
 
-                Glide.with(this@DetailActivity).load(response.body()!!.mealsEntity[0].strmealthumb).into(binding.imgItem)
+                Glide.with(this@DetailActivity).load(response.body()!!.mealsEntity[0].strmealthumb).into(imgItem)
 
-                binding.tvCategory.text = response.body()!!.mealsEntity[0].strmeal
+                tvCategory.text = response.body()!!.mealsEntity[0].strmeal
 
                 var ingredient = "${response.body()!!.mealsEntity[0].stringredient1}      ${response.body()!!.mealsEntity[0].strmeasure1}\n" +
                         "${response.body()!!.mealsEntity[0].stringredient2}      ${response.body()!!.mealsEntity[0].strmeasure2}\n" +
@@ -84,13 +79,13 @@ class DetailActivity : BaseActivity() {
                         "${response.body()!!.mealsEntity[0].stringredient19}      ${response.body()!!.mealsEntity[0].strmeasure19}\n" +
                         "${response.body()!!.mealsEntity[0].stringredient20}      ${response.body()!!.mealsEntity[0].strmeasure20}\n"
 
-                binding.tvIngredients.text = ingredient
-                binding.tvInstructions.text = response.body()!!.mealsEntity[0].strinstructions
+                tvIngredients.text = ingredient
+                tvInstructions.text = response.body()!!.mealsEntity[0].strinstructions
 
                 if (response.body()!!.mealsEntity[0].strsource != null){
                     youtubeLink = response.body()!!.mealsEntity[0].strsource
                 }else{
-                    binding.btnYoutube.visibility = View.GONE
+                    btnYoutube.visibility = View.GONE
                 }
             }
 

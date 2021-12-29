@@ -1,11 +1,10 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'kotlin-parcelize'
+    id 'kotlin-android-extensions'
     id 'kotlin-kapt'
 }
 
-def room_version = "2.3.0"
 
 android {
     compileSdk 31
@@ -33,9 +32,6 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {
@@ -62,12 +58,11 @@ dependencies {
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
 
     //room database
-    implementation 'androidx.room:room-common:2.2.6'
-    implementation 'androidx.room:room-ktx:2.2.6'
+    implementation 'androidx.room:room-runtime:2.3.0'
+    implementation 'androidx.room:room-ktx:2.3.0'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
-    implementation "androidx.room:room-ktx:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    kapt 'androidx.room:room-compiler:2.3.0'
 
     //crop image library
 

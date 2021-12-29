@@ -7,12 +7,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import kotlinx.android.synthetic.main.item_rv_main_category.view.*
 import org.techtown.recipeapp.R
 import org.techtown.recipeapp.entities.MealsItems
 
 class SubCategoryAdapter: RecyclerView.Adapter<SubCategoryAdapter.RecipeViewHolder>() {
 
-    var listener: OnItemClickListener? = null
+    var listener: SubCategoryAdapter.OnItemClickListener? = null
     var ctx :Context? = null
     var arrSubCategory = ArrayList<MealsItems>()
     class RecipeViewHolder(view: View): RecyclerView.ViewHolder(view){
@@ -32,15 +33,15 @@ class SubCategoryAdapter: RecyclerView.Adapter<SubCategoryAdapter.RecipeViewHold
         return arrSubCategory.size
     }
 
-    fun setClickListener(listener1: OnItemClickListener){
+    fun setClickListener(listener1: SubCategoryAdapter.OnItemClickListener){
         listener = listener1
     }
 
     override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
 
-        holder.itemView.findViewById<TextView>(R.id.img_dish).text = arrSubCategory[position].strMeal
+        holder.itemView.tv_dish_name.text = arrSubCategory[position].strMeal
 
-        Glide.with(ctx!!).load(arrSubCategory[position].strMealThumb).into(holder.itemView.findViewById(R.id.img_dish))
+        Glide.with(ctx!!).load(arrSubCategory[position].strMealThumb).into(holder.itemView.img_dish)
 
         holder.itemView.rootView.setOnClickListener {
             listener!!.onClicked(arrSubCategory[position].idMeal)
