@@ -8,7 +8,7 @@ import org.techtown.recipeapp.adapter.MainCategoryAdapter
 import org.techtown.recipeapp.adapter.SubCategoryAdapter
 import org.techtown.recipeapp.entities.Recipes
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : BaseActivity() {
     var arrMainCategory = ArrayList<Recipes>()
     var arrSubCategory = ArrayList<Recipes>()
 
