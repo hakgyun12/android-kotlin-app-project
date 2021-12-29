@@ -7,7 +7,7 @@ import org.techtown.recipeapp.entities.Category
 
 class CategoryListConverter {
     @TypeConverter
-    fun fromCategoryList(category: List<Category>): String?{
+    fun fromCategoryList(category: List<Category>?): String?{
         if (category == null){
             return (null)
         } else {
@@ -20,7 +20,7 @@ class CategoryListConverter {
     }
 
     @TypeConverter
-    fun toCategoryList (categoryString: String): List<Category>?{
+    fun toCategoryList (categoryString: String?): List<Category>?{
         if(categoryString == null){
             return (null)
         } else {

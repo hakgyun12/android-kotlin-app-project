@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
+
 @Entity(tableName = "CategoryItems")
 data class CategoryItems(
     @PrimaryKey(autoGenerate = true)
@@ -31,3 +32,4 @@ data class CategoryItems(
     @SerializedName("strCategoryDescription")
     val strcategorydescription: String
 )
+

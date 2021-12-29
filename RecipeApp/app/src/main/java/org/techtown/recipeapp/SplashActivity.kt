@@ -2,54 +2,186 @@ package org.techtown.recipeapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.Toast
-import org.techtown.recipeapp.entities.Category
+import org.techtown.recipeapp.database.RecipeDatabase
 import org.techtown.recipeapp.interfaces.GetDataService
+import kotlinx.coroutines.launch
+import org.techtown.recipeapp.databinding.ActivitySplashBinding
+import org.techtown.recipeapp.entities.Category
+import org.techtown.recipeapp.entities.Meal
+import org.techtown.recipeapp.entities.MealsItems
 import org.techtown.recipeapp.retofitclient.RetrofitClientInstance
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.create
 import java.util.*
 
-class SplashActivity : BaseActivity() {
+private lateinit var binding : ActivitySplashBinding
+
+class SplashActivity : BaseActivity(), EasyPermissions.RationaleCallbacks,
+    EasyPermissions.PermissionCallbacks {
+    private var READ_STORAGE_PERM = 123
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        val btnGetStarted = findViewById<Button>(R.id.btnGetStarted)
-        btnGetStarted.setOnClickListener {
-            var intent = Intent(this, HomeActivity::class.java)
+        readStorageTask()
+
+        binding = ActivitySplashBinding.inflate(layoutInflater)
+
+        binding.btnGetStarted.setOnClickListener {
+            var intent = Intent(this@SplashActivity, HomeActivity::class.java)
             startActivity(intent)
             finish()
         }
     }
 
-    fun getCategories(){
-        val service = RetrofitClientInstance.retrofitInstance.create(GetDataService::class.java)
+
+    fun getCategories() {
+        val service = RetrofitClientInstance.retrofitInstance!!.create(GetDataService::class.java)
         val call = service.getCategoryList()
-        call.enqueue(object: Callback<List<Category>>{
-            override fun onResponse(
-                call: Call<List<Category>>,
-                response: Response<List<Category>>
-            ) {
-                insertDataIntoRoomDb(response.body())
+        call.enqueue(object : Callback<Category> {
+            override fun onFailure(call: Call<Category>, t: Throwable) {
+
+                Toast.makeText(this@SplashActivity, "Something went wrong", Toast.LENGTH_SHORT)
+                    .show()
             }
 
-            override fun onFailure(call: Call<List<Category>>, t: Throwable) {
-                val loader = findViewById<ProgressBar>(R.id.loader)
-                loader.visibility = View.INVISIBLE
+            override fun onResponse(
+                call: Call<Category>,
+                response: Response<Category>
+            ) {
 
-                Toast.makeText(this@SplashActivity, "Something went wrong", Toast.LENGTH_SHORT).show()
+                for (arr in response.body()!!.categorieitems!!) {
+                    getMeal(arr.strcategory)
+                }
+                insertDataIntoRoomDb(response.body())
             }
 
         })
     }
 
-    fun insertDataIntoRoomDb(category: List<Category>?){
+
+    fun getMeal(categoryName: String) {
+        val service = RetrofitClientInstance.retrofitInstance!!.create(GetDataService::class.java)
+        val call = service.getMealList(categoryName)
+        call.enqueue(object : Callback<Meal> {
+            override fun onFailure(call: Call<Meal>, t: Throwable) {
+
+                binding.loader.visibility = View.INVISIBLE
+                Toast.makeText(this@SplashActivity, "Something went wrong", Toast.LENGTH_SHORT)
+                    .show()
+            }
+
+            override fun onResponse(
+                call: Call<Meal>,
+                response: Response<Meal>
+            ) {
+
+                insertMealDataIntoRoomDb(categoryName, response.body())
+            }
+
+        })
+    }
+
+    fun insertDataIntoRoomDb(category: Category?) {
+
+        launch {
+            this.let {
+
+                for (arr in category!!.categorieitems!!) {
+                    RecipeDatabase.getDatabase(this@SplashActivity)
+                        .recipeDao().insertCategory(arr)
+                }
+            }
+        }
+
+
+    }
+
+    fun insertMealDataIntoRoomDb(categoryName: String, meal: Meal?) {
+
+        launch {
+            this.let {
+
+
+                for (arr in meal!!.mealsItem!!) {
+                    var mealItemModel = MealsItems(
+                        arr.id,
+                        arr.idMeal,
+                        categoryName,
+                        arr.strMeal,
+                        arr.strMealThumb
+                    )
+                    RecipeDatabase.getDatabase(this@SplashActivity)
+                        .recipeDao().insertMeal(mealItemModel)
+                    Log.d("mealData", arr.toString())
+                }
+
+                binding.btnGetStarted.visibility = View.VISIBLE
+            }
+        }
+
+
+    }
+
+    fun clearDataBase() {
+        launch {
+            this.let {
+                RecipeDatabase.getDatabase(this@SplashActivity).recipeDao().clearDb()
+            }
+        }
+    }
+
+    private fun hasReadStoragePermission(): Boolean {
+        return EasyPermissions.hasPermissions(
+            this,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+    }
+
+    private fun readStorageTask() {
+        if (hasReadStoragePermission()) {
+            clearDataBase()
+            getCategories()
+        } else {
+            EasyPermissions.requestPermissions(
+                this,
+                "This app needs access to your storage,",
+                READ_STORAGE_PERM,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    override fun onRationaleDenied(requestCode: Int) {
+
+    }
+
+    override fun onRationaleAccepted(requestCode: Int) {
+
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            AppSettingsDialog.Builder(this).build().show()
+        }
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
 
     }
 }

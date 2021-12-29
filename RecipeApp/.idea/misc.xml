@@ -4,8 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/drawable/btn_bg.xml" value="0.38229166666666664" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/drawable/btn_bg2.xml" value="0.38229166666666664" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/drawable/btn_bg3.xml" value="0.38229166666666664" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/drawable/ic_baseline_access_time_24.xml" value="0.38229166666666664" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/drawable/ic_fav_unfill.xml" value="0.38229166666666664" />
         <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/drawable/ic_launcher_background.xml" value="0.38229166666666664" />
         <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/drawable/search_bg.xml" value="0.38229166666666664" />
+        <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/layout/activity_detail.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/layout/activity_home.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/layout/activity_main.xml" value="0.36614583333333334" />
         <entry key="..\:/Users/Admin/Documents/GitHub/android-kotlin-app-project/RecipeApp/app/src/main/res/layout/activity_splash.xml" value="0.27219202898550726" />
