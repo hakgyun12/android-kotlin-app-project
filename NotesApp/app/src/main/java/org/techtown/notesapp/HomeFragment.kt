@@ -6,6 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import kotlinx.coroutines.launch
+import org.techtown.notesapp.adapter.NotesAdapter
+import org.techtown.notesapp.database.NotesDatabase
 import org.techtown.notesapp.databinding.FragmentHomeBinding
 
 
@@ -54,6 +58,18 @@ class HomeFragment : BaseFragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val recycler_View = _binding!!.recyclerView
+        recycler_View.setHasFixedSize(true)
+
+        recycler_View.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+
+        launch {
+            context?.let{
+                var notes = NotesDatabase.getDatabase(it).noteDao().getAllNotes()
+                recycler_View.adapter = NotesAdapter(notes)
+            }
+        }
         _binding!!.fabBtnCreate.setOnClickListener {
             // 새로 불러온 Fragment를 호출 할 때 사용하는 메소드
             replaceFragment(CreateNoteFragment.newInstance(), true)

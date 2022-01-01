@@ -7,8 +7,8 @@ import org.techtown.notesapp.entities.Notes
 @Dao
 interface NoteDao {
 
-    @get:Query("SELECT * FROM notes ORDER BY id DESC")
-    val allNotes: List<Notes>
+    @Query("SELECT * FROM notes ORDER BY id DESC")
+    suspend fun getAllNotes(): List<Notes>
 
     /**
      * onConflict = OnConfictStrategy.REPLACE의 의미는 Insert(삽입)할 때
