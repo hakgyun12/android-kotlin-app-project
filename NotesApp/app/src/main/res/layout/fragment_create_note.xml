@@ -45,15 +45,36 @@
         android:fontFamily="@font/manrope_bold"
         android:textColorHint="@color/ColorGray"
         android:maxLines="1"
+        android:inputType="text"
         android:ellipsize="end"
         android:hint="@string/notes_title" />
+
+    <TextView
+        android:id="@+id/tvDateTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:paddingStart="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        app:layout_constraintTop_toBottomOf="@id/etNoteTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@android:color/transparent"
+        android:textColor="@color/ColorWhite"
+        android:textSize="@dimen/_8ssp"
+        android:fontFamily="@font/manrope_bold"
+        android:textColorHint="@color/ColorGray"
+        android:maxLines="1"
+        android:ellipsize="end" />
 
     <LinearLayout
         android:id="@+id/li"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_10sdp"
-        app:layout_constraintTop_toBottomOf="@id/etNoteTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvDateTime"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:orientation="horizontal" >
@@ -75,6 +96,7 @@
             android:fontFamily="@font/manrope_regular"
             android:background="@android:color/transparent"
             android:maxLines="1"
+            android:inputType="text"
             android:ellipsize="end"
             android:hint="@string/notes_sub_title" />
 

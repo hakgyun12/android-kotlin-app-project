@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
          * 순서대로 onCreateView를 실행하며 재사용됩니다.
          * */
 
-        fragmentTransition.replace(R.id.frame_layout, fragment).addToBackStack(fragment.javaClass.simpleName)
+        fragmentTransition.add(R.id.frame_layout, fragment).addToBackStack(fragment.javaClass.simpleName).commit()
     }
 
 }

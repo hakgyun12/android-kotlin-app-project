@@ -81,6 +81,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add"
         android:tint="@color/ColorWhite"
+        android:id="@+id/fabBtnCreate"
         android:background="@color/colorAccent"
         android:layout_marginEnd="@dimen/_20sdp"
         android:layout_marginBottom="@dimen/_20sdp"

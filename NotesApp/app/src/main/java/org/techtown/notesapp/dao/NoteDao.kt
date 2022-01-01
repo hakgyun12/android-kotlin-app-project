@@ -16,8 +16,11 @@ interface NoteDao {
      * id가 겹치는 걸 의미한다.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun ins(notes: Notes)
+    suspend fun insertNotes(notes: Notes)
 
+    /**
+     * suspend란 비동기 실행을 위한 중단 지점의 의미이다.
+     */
     @Delete
-    fun deleteNote(notes: Notes)
+    suspend fun deleteNote(notes: Notes)
 }
