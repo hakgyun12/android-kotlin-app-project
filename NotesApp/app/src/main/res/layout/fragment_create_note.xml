@@ -103,6 +103,13 @@
 
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/imgNote"
+        app:layout_constraintTop_toBottomOf="@id/li"
+        app:layout_constraintBottom_toTopOf="@id/etNoteDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <EditText
         android:id="@+id/etNoteDesc"
         android:layout_width="match_parent"
@@ -132,7 +139,7 @@
             android:layout_width="@dimen/_24sdp"
             android:layout_height="@dimen/_24sdp"
             app:tint="@color/ColorWhite"
-            android:src="@drawable/ic_more" />
+            android:src="@drawable/img_bar" />
 
     </FrameLayout>
 

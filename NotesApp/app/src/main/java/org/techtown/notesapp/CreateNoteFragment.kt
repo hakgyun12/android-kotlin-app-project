@@ -18,11 +18,14 @@ import org.techtown.notesapp.database.NotesDatabase
 import org.techtown.notesapp.databinding.FragmentCreateNoteBinding
 import org.techtown.notesapp.entities.Notes
 import org.techtown.notesapp.util.NoteBottomSheetFragment
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.jar.Manifest
 
 
-class CreateNoteFragment : BaseFragment() {
+class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
 
     private var _binding: FragmentCreateNoteBinding? = null
     private val binding get() = _binding!!
@@ -32,6 +35,10 @@ class CreateNoteFragment : BaseFragment() {
 
     // 유저가 현재 작성한 시간을 나타내기 위한 variable 변수
     var currentDate: String? = null
+
+    // 유저의 Storage 허가를 받기 위한 변수
+    private var READ_STORAGE_PERM = 123
+    private var WRITE_STORAGE_PERM = 123
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -145,7 +152,7 @@ class CreateNoteFragment : BaseFragment() {
 
     private val BroadcastReceiver : BroadcastReceiver = object : BroadcastReceiver(){
         override fun onReceive(p0: Context?, p1: Intent?) {
-            var actionColor = p1!!.getStringExtra("actionColor")
+            var actionColor = p1!!.getStringExtra("action")
 
             when(actionColor!!){
                 "Blue" -> {
@@ -178,6 +185,10 @@ class CreateNoteFragment : BaseFragment() {
                     _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
+                "Image" -> {
+                    readStorageTask()
+                }
+
                 else -> {
                     selectedColor = p1.getStringExtra("selectedColor")!!
                     _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
@@ -190,5 +201,48 @@ class CreateNoteFragment : BaseFragment() {
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(BroadcastReceiver)
         super.onDestroy()
+    }
+
+    private fun hasReadStoragePerm(): Boolean {
+        return EasyPermissions.hasPermissions(requireContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    private fun readStorageTask(){
+        if(hasReadStoragePerm()){
+            Toast.makeText(requireContext(), "permission Granted", Toast.LENGTH_SHORT).show()
+        }else{
+            EasyPermissions.requestPermissions(
+                requireActivity(),
+                getString(R.string.storage_permission_text),
+                READ_STORAGE_PERM,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, requireActivity())
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        if(EasyPermissions.somePermissionPermanentlyDenied(requireActivity(), perms)){
+            AppSettingsDialog.Builder(requireActivity()).build().show()
+        }
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+    }
+
+    override fun onRationaleAccepted(requestCode: Int) {
+    }
+
+    override fun onRationaleDenied(requestCode: Int) {
     }
 }

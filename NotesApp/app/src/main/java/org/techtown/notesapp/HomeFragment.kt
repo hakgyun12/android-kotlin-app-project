@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import org.techtown.notesapp.adapter.NotesAdapter
 import org.techtown.notesapp.database.NotesDatabase
@@ -17,9 +18,6 @@ import org.techtown.notesapp.entities.Notes
 
 
 class HomeFragment : BaseFragment() {
-
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
 
     /**
      * Fragment가 생성될때 호출되는 부분
@@ -39,9 +37,7 @@ class HomeFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     companion object {
@@ -73,7 +69,7 @@ class HomeFragment : BaseFragment() {
                 recycler_view.adapter = NotesAdapter(notes)
             }
         }
-        _binding!!.fabBtnCreate.setOnClickListener {
+        view.findViewById<FloatingActionButton>(R.id.fabBtnCreate).setOnClickListener {
             // 새로 불러온 Fragment를 호출 할 때 사용하는 메소드
             replaceFragment(CreateNoteFragment.newInstance(), false)
         }

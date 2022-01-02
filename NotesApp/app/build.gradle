@@ -64,6 +64,12 @@ dependencies {
     implementation("androidx.room:room-runtime:2.3.0")
     annotationProcessor("androidx.room:room-compiler:2.3.0")
 
+    //crop image library
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+
+    // easy permission
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
     // To use Kotlin annotation processing tool (kapt)
     kapt("androidx.room:room-compiler:2.3.0")
 
