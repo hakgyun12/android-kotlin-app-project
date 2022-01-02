@@ -106,16 +106,19 @@
     <ImageView
         android:id="@+id/imgNote"
         app:layout_constraintTop_toBottomOf="@id/li"
-        app:layout_constraintBottom_toTopOf="@id/etNoteDesc"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:visibility="gone"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_height="@dimen/_300sdp" />
 
     <EditText
         android:id="@+id/etNoteDesc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/_10sdp"
-        app:layout_constraintTop_toBottomOf="@id/li"
+        app:layout_constraintTop_toBottomOf="@id/imgNote"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:textColor="@color/ColorWhite"

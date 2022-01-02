@@ -1,11 +1,15 @@
 package org.techtown.notesapp
 
+import android.app.appsearch.AppSearchResult.RESULT_OK
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,6 +24,7 @@ import org.techtown.notesapp.entities.Notes
 import org.techtown.notesapp.util.NoteBottomSheetFragment
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.jar.Manifest
@@ -38,7 +43,8 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
 
     // 유저의 Storage 허가를 받기 위한 변수
     private var READ_STORAGE_PERM = 123
-    private var WRITE_STORAGE_PERM = 123
+    private var REQUEST_CODE_IMAGE = 456
+    private var selectedImagePath = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,8 +92,8 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
         }
 
         _binding!!.imgBack.setOnClickListener {
-            replaceFragment(HomeFragment.newInstance(), false)
-            //requireActivity().supportFragmentManager.popBackStack()
+            //replaceFragment(HomeFragment.newInstance(), false)
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
         _binding!!.imgMore.setOnClickListener {
@@ -114,17 +120,15 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
             notes.noteText = _binding!!.etNoteDesc.text.toString()
             notes.dateTime = currentDate
             notes.color = selectedColor
-
-            Log.d("TEST", notes.title!!)
-            Log.d("TEST", notes.subTitle!!)
-            Log.d("TEST", notes.noteText!!)
+            notes.imgPath = selectedImagePath
 
             context?.let{
                 NotesDatabase.getDatabase(it).noteDao().insertNotes(notes)
                 _binding!!.etNoteTitle.setText("")
                 _binding!!.etNoteSubTitle.setText("")
                 _binding!!.etNoteDesc.setText("")
-
+                _binding!!.imgNote.visibility = View.GONE
+                requireActivity().supportFragmentManager.popBackStack()
             }
         }
     }
@@ -209,7 +213,7 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
 
     private fun readStorageTask(){
         if(hasReadStoragePerm()){
-            Toast.makeText(requireContext(), "permission Granted", Toast.LENGTH_SHORT).show()
+            pickImageFromGallery()
         }else{
             EasyPermissions.requestPermissions(
                 requireActivity(),
@@ -218,6 +222,49 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
                 android.Manifest.permission.READ_EXTERNAL_STORAGE
 
             )
+        }
+    }
+
+    private fun pickImageFromGallery(){
+        var intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        if(intent.resolveActivity(requireActivity().packageManager) != null){
+            startActivityForResult(intent, REQUEST_CODE_IMAGE)
+        }
+    }
+
+    private fun getPathFromUri(contentUri: Uri): String?{
+        var filePath:String? = null
+        var cursor = requireActivity().contentResolver.query(contentUri, null, null, null, null)
+        if(cursor == null){
+            filePath = contentUri.path
+        }else{
+            cursor.moveToFirst()
+            var index = cursor.getColumnIndex("_data")
+            filePath = cursor.getString(index)
+            cursor.close()
+        }
+        return filePath
+
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == REQUEST_CODE_IMAGE && resultCode == RESULT_OK){
+            if(data != null){
+                var selectedImageUrl = data.data
+                if (selectedImageUrl != null){
+                    try {
+                        var inputStream = requireActivity().contentResolver.openInputStream(selectedImageUrl)
+                        var bitmap = BitmapFactory.decodeStream(inputStream)
+                        _binding!!.imgNote.setImageBitmap(bitmap)
+                        _binding!!.imgNote.visibility = View.VISIBLE
+
+                        selectedImagePath = getPathFromUri(selectedImageUrl)!!
+                    }catch (e: Exception){
+                        Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 
