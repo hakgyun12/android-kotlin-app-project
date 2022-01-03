@@ -9,17 +9,19 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.PatternMatcher
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Patterns
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import kotlinx.android.synthetic.main.fragment_create_note.*
 import kotlinx.coroutines.launch
 import org.techtown.notesapp.database.NotesDatabase
-import org.techtown.notesapp.databinding.FragmentCreateNoteBinding
 import org.techtown.notesapp.entities.Notes
 import org.techtown.notesapp.util.NoteBottomSheetFragment
 import pub.devrel.easypermissions.AppSettingsDialog
@@ -27,13 +29,9 @@ import pub.devrel.easypermissions.EasyPermissions
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.jar.Manifest
 
 
 class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
-
-    private var _binding: FragmentCreateNoteBinding? = null
-    private val binding get() = _binding!!
 
     // 노트마다 색상을 구별하기 위한 variable 변수
     var selectedColor = "#171C26"
@@ -45,6 +43,7 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
     private var READ_STORAGE_PERM = 123
     private var REQUEST_CODE_IMAGE = 456
     private var selectedImagePath = ""
+    private var webLink = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,9 +57,7 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentCreateNoteBinding.inflate(inflater, container, false)
-        val view = binding.root
-        return view
+        return inflater.inflate(R.layout.fragment_create_note, container, false)
 
     }
 
@@ -79,79 +76,90 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
             BroadcastReceiver, IntentFilter("bottom_sheet_action")
         )
+
         val sdf = SimpleDateFormat("dd/M/yyy hh:mm:ss")
         val currentDate  = sdf.format(Date())
-        _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+        colorView.setBackgroundColor(Color.parseColor(selectedColor))
 
-        _binding!!.tvDateTime.text = currentDate
+        tvDateTime.text = currentDate
 
-        _binding!!.imgDone.setOnClickListener {
+        imgDone.setOnClickListener {
             //saveNote
             saveNote()
             Log.d("TEST", "true")
         }
 
-        _binding!!.imgBack.setOnClickListener {
+        imgBack.setOnClickListener {
             //replaceFragment(HomeFragment.newInstance(), false)
             requireActivity().supportFragmentManager.popBackStack()
         }
 
-        _binding!!.imgMore.setOnClickListener {
+        imgMore.setOnClickListener {
             var noteBottomSheetFragment = NoteBottomSheetFragment.newInstance()
             noteBottomSheetFragment.show(requireActivity().supportFragmentManager, "Note Bottom Sheet Fragment")
+        }
+
+        btnOk.setOnClickListener {
+            if(etWebLink.text.toString().trim().isNotEmpty()){
+                checkWebUrl()
+            }else{
+                Toast.makeText(requireContext(), "Url is Required", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnCancel.setOnClickListener {
+            layoutWebUrl.visibility = View.GONE
+        }
+
+        tvWebLink2.setOnClickListener {
+            var intent = Intent(Intent.ACTION_VIEW, Uri.parse(etWebLink.text.toString()))
+            startActivity(intent)
         }
     }
 
     private fun saveNote(){
-        if(_binding!!.etNoteTitle.text.isNullOrEmpty()){
+        if(etNoteTitle.text.isNullOrEmpty()){
             Toast.makeText(context, "Note Title is Required", Toast.LENGTH_SHORT).show()
         }
-        if(_binding!!.etNoteSubTitle.text.isNullOrEmpty()){
+        else if(etNoteSubTitle.text.isNullOrEmpty()){
             Toast.makeText(context, "Note Sub Title Required", Toast.LENGTH_SHORT).show()
         }
-        if(_binding!!.etNoteDesc.text.isNullOrEmpty()){
+        else if(etNoteDesc.text.isNullOrEmpty()){
             Toast.makeText(context, "Note Description is Required", Toast.LENGTH_SHORT).show()
-        }
+        }else {
+            launch {
+                val notes = Notes()
+                notes.title = etNoteTitle.text.toString()
+                notes.subTitle = etNoteSubTitle.text.toString()
+                notes.noteText = etNoteDesc.text.toString()
+                notes.dateTime = currentDate
+                notes.color = selectedColor
+                notes.imgPath = selectedImagePath
+                notes.webLink = webLink
 
-        launch {
-            val notes = Notes()
-            notes.title = _binding!!.etNoteTitle.text.toString()
-            notes.subTitle = _binding!!.etNoteSubTitle.text.toString()
-            notes.noteText = _binding!!.etNoteDesc.text.toString()
-            notes.dateTime = currentDate
-            notes.color = selectedColor
-            notes.imgPath = selectedImagePath
-
-            context?.let{
-                NotesDatabase.getDatabase(it).noteDao().insertNotes(notes)
-                _binding!!.etNoteTitle.setText("")
-                _binding!!.etNoteSubTitle.setText("")
-                _binding!!.etNoteDesc.setText("")
-                _binding!!.imgNote.visibility = View.GONE
-                requireActivity().supportFragmentManager.popBackStack()
+                context?.let {
+                    NotesDatabase.getDatabase(it).noteDao().insertNotes(notes)
+                    etNoteTitle.setText("")
+                    etNoteSubTitle.setText("")
+                    etNoteDesc.setText("")
+                    imgNote.visibility = View.GONE
+                    tvWebLink2.visibility = View.GONE
+                    requireActivity().supportFragmentManager.popBackStack()
+                }
             }
         }
     }
 
-    fun replaceFragment(fragment: Fragment, istransition: Boolean){
-        /**
-         * 프래그먼트 매니저를 선언 해준 뒤에 beginTransition()를 호출함으로써 프래그먼트 트랜잭션 작업을 시작할 수 있다.
-         * 이후에 프래그먼트에 대한 각종 트랜잭션 작업들(추가, 삭제, 교체)등과 애니메이션, 프래그먼트 백스택 등을 추가해준 뒤에 commit()을 호출하여
-         * 트랜잭션을 마무리하게 해줍니다. 이 때 주의해야 할점은 반드시 commit()을 호출해 주어야만 transaction 작업을 정상적으로 수행할 수 있다.
-         * */
-        val fragmentTransition = requireActivity().supportFragmentManager.beginTransaction()
-
-        if(istransition){
-            fragmentTransition.setCustomAnimations(android.R.anim.slide_out_right, android.R.anim.slide_in_left)
+    private fun checkWebUrl(){
+        if(Patterns.WEB_URL.matcher(etWebLink.text.toString()).matches()){
+            layoutWebUrl.visibility = View.GONE
+            etWebLink.isEnabled = false
+            webLink = etWebLink.text.toString()
+            tvWebLink2.visibility = View.VISIBLE
+            tvWebLink2.text = etWebLink.text.toString()
+        }else{
+            Toast.makeText(requireContext(), "Url is not valid", Toast.LENGTH_SHORT).show()
         }
-        /**
-         * replace + addToBackStack()
-         * 화면에 프래그먼트 1개만을 보여줄 때 사용한다. 프래그먼트는 stack에 계속 쌓이지만 화면에 중첩되어 보여지지는 않는다.
-         * 새로운 프래그먼트가 replace될 때 이전에 생성된 프래그먼트는 onDestroyView가 됩니다. 뒤로가기를 하게 되면 이전에 생성된 프래그먼트들이
-         * 순서대로 onCreateView를 실행하며 재사용됩니다.
-         * */
-
-        fragmentTransition.add(R.id.frame_layout, fragment).addToBackStack(fragment.javaClass.simpleName).commit()
     }
 
     private val BroadcastReceiver : BroadcastReceiver = object : BroadcastReceiver(){
@@ -161,41 +169,48 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
             when(actionColor!!){
                 "Blue" -> {
                     selectedColor = p1.getStringExtra("selectedColor")!!
-                    _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
                 "Yellow" -> {
                     selectedColor = p1.getStringExtra("selectedColor")!!
-                    _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
                 "Purple" -> {
                     selectedColor = p1.getStringExtra("selectedColor")!!
-                    _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
                 "Green" -> {
                     selectedColor = p1.getStringExtra("selectedColor")!!
-                    _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
                 "Orange" -> {
                     selectedColor = p1.getStringExtra("selectedColor")!!
-                    _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
                 "Black" -> {
                     selectedColor = p1.getStringExtra("selectedColor")!!
-                    _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
                 "Image" -> {
                     readStorageTask()
+                    layoutWebUrl.visibility = View.GONE
+                }
+
+                "WebUrl" -> {
+                    layoutWebUrl.visibility = View.VISIBLE
                 }
 
                 else -> {
+                    imgNote.visibility = View.GONE
+                    layoutWebUrl.visibility = View.GONE
                     selectedColor = p1.getStringExtra("selectedColor")!!
-                    _binding!!.colorView.setBackgroundColor(Color.parseColor(selectedColor))
+                    colorView.setBackgroundColor(Color.parseColor(selectedColor))
                 }
 
             }
@@ -256,8 +271,8 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
                     try {
                         var inputStream = requireActivity().contentResolver.openInputStream(selectedImageUrl)
                         var bitmap = BitmapFactory.decodeStream(inputStream)
-                        _binding!!.imgNote.setImageBitmap(bitmap)
-                        _binding!!.imgNote.visibility = View.VISIBLE
+                        imgNote.setImageBitmap(bitmap)
+                        imgNote.visibility = View.VISIBLE
 
                         selectedImagePath = getPathFromUri(selectedImageUrl)!!
                     }catch (e: Exception){

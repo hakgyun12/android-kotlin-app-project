@@ -1,23 +1,23 @@
 package org.techtown.notesapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.launch
 import org.techtown.notesapp.adapter.NotesAdapter
 import org.techtown.notesapp.database.NotesDatabase
-import org.techtown.notesapp.databinding.FragmentCreateNoteBinding
-import org.techtown.notesapp.databinding.FragmentHomeBinding
 import org.techtown.notesapp.entities.Notes
 
 
 class HomeFragment : BaseFragment() {
+
+    var arrNotes = java.util.ArrayList<Notes>()
+    var notesAdapter: NotesAdapter = NotesAdapter()
 
     /**
      * Fragment가 생성될때 호출되는 부분
@@ -58,7 +58,6 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recycler_view = view.findViewById<RecyclerView>(R.id.recycler_view)
         recycler_view.setHasFixedSize(true)
 
         recycler_view.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
@@ -66,10 +65,12 @@ class HomeFragment : BaseFragment() {
         launch {
             context?.let{
                 var notes = NotesDatabase.getDatabase(it).noteDao().getAllNotes()
-                recycler_view.adapter = NotesAdapter(notes)
+                notesAdapter!!.setData(notes)
+                arrNotes = notes as ArrayList<Notes>
+                recycler_view.adapter = notesAdapter
             }
         }
-        view.findViewById<FloatingActionButton>(R.id.fabBtnCreate).setOnClickListener {
+        fabBtnCreateNote.setOnClickListener {
             // 새로 불러온 Fragment를 호출 할 때 사용하는 메소드
             replaceFragment(CreateNoteFragment.newInstance(), false)
         }

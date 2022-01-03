@@ -5,47 +5,75 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.makeramen.roundedimageview.RoundedImageView
+import kotlinx.android.synthetic.main.fragment_create_note.view.*
+import kotlinx.android.synthetic.main.item_rv_notes.view.*
+import kotlinx.android.synthetic.main.item_rv_notes.view.imgNote
+import kotlinx.android.synthetic.main.item_rv_notes.view.tvDateTime
 import org.techtown.notesapp.R
 import org.techtown.notesapp.entities.Notes
 
-class NotesAdapter(var arrList: List<Notes>): RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
-
-
+class NotesAdapter() :
+    RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
+    var listener:OnItemClickListener? = null
+    var arrList = ArrayList<Notes>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotesViewHolder {
         return NotesViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_rv_notes, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_rv_notes,parent,false)
         )
-    }
-
-    override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
-
-        holder.itemView.findViewById<TextView>(R.id.tvTitle).text = arrList[position].title
-        holder.itemView.findViewById<TextView>(R.id.tvDesc).text = arrList[position].noteText
-        holder.itemView.findViewById<TextView>(R.id.tvDateTime).text = arrList[position].dateTime
-
-        if (arrList[position].color != null){
-            holder.itemView.findViewById<CardView>(R.id.cardView).setCardBackgroundColor(Color.parseColor(arrList[position].color))
-        }else{
-            //holder.itemView.findViewById<CardView>(R.id.cardView).setCardBackgroundColor(Color.parseColor(R.color.ColorDarkBlack.toString()))
-        }
-
-        if (arrList[position].imgPath != null) {
-            holder.itemView.findViewById<RoundedImageView>(R.id.imgNote).setImageBitmap(BitmapFactory.decodeFile(arrList[position].imgPath))
-            holder.itemView.findViewById<RoundedImageView>(R.id.imgNote).visibility = View.VISIBLE
-        } else {
-            holder.itemView.findViewById<RoundedImageView>(R.id.imgNote).visibility = View.GONE
-        }
     }
 
     override fun getItemCount(): Int {
         return arrList.size
     }
 
-    class NotesViewHolder(view: View) : RecyclerView.ViewHolder(view){
+    fun setData(arrNotesList: List<Notes>){
+        arrList = arrNotesList as ArrayList<Notes>
+    }
+
+    fun setOnClickListener(listener1: OnItemClickListener){
+        listener = listener1
+    }
+
+    override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
+
+        holder.itemView.tvTitle.text = arrList[position].title
+        holder.itemView.tvDesc.text = arrList[position].noteText
+        holder.itemView.tvDateTime.text = arrList[position].dateTime
+
+        if (arrList[position].color != null){
+            holder.itemView.cardView.setCardBackgroundColor(Color.parseColor(arrList[position].color))
+        }else{
+            holder.itemView.cardView.setCardBackgroundColor(Color.parseColor(R.color.ColorLightBlack.toString()))
+        }
+
+        if (arrList[position].imgPath != null){
+            holder.itemView.imgNote.setImageBitmap(BitmapFactory.decodeFile(arrList[position].imgPath))
+            holder.itemView.imgNote.visibility = View.VISIBLE
+        }else{
+            holder.itemView.imgNote.visibility = View.GONE
+        }
+
+        if (arrList[position].webLink != ""){
+            holder.itemView.tvWebLink.text = arrList[position].webLink
+            holder.itemView.tvWebLink.visibility = View.VISIBLE
+        }else{
+            holder.itemView.tvWebLink.visibility = View.GONE
+        }
+
+        holder.itemView.cardView.setOnClickListener {
+            listener!!.onClicked(arrList[position].id!!)
+        }
 
     }
+
+    class NotesViewHolder(view:View) : RecyclerView.ViewHolder(view){
+
+    }
+
+
+    interface OnItemClickListener{
+        fun onClicked(noteId:Int)
+    }
+
 }
