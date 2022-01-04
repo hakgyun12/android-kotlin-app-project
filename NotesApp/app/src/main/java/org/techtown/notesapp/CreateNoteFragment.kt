@@ -20,6 +20,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import kotlinx.android.synthetic.main.fragment_create_note.*
+import kotlinx.android.synthetic.main.fragment_create_note.imgNote
+import kotlinx.android.synthetic.main.fragment_create_note.tvDateTime
+import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.item_rv_notes.*
+import kotlinx.android.synthetic.main.item_rv_notes.view.*
 import kotlinx.coroutines.launch
 import org.techtown.notesapp.database.NotesDatabase
 import org.techtown.notesapp.entities.Notes
@@ -44,12 +49,13 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
     private var REQUEST_CODE_IMAGE = 456
     private var selectedImagePath = ""
     private var webLink = ""
+    private var noteId = -1
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-        }
+
+        noteId = requireArguments().getInt("noteId")
     }
 
     override fun onCreateView(
@@ -72,6 +78,32 @@ class CreateNoteFragment : BaseFragment(), EasyPermissions.PermissionCallbacks, 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        try {
+            if (noteId != -1){
+                launch {
+                    context?.let {
+                        var notes = NotesDatabase.getDatabase(it).noteDao().getSpecificNote(noteId)
+                        colorView.setBackgroundColor(Color.parseColor(notes.color))
+                        etNoteTitle.setText(notes.title)
+                        etNoteSubTitle.setText(notes.subTitle)
+                        etNoteDesc.setText(notes.noteText)
+                        if (notes.imgPath != "") {
+                            selectedImagePath = notes.imgPath!!
+                            imgNote.setImageBitmap(BitmapFactory.decodeFile(notes.imgPath))
+                            layoutImage.visibility = View.VISIBLE
+                            imgNote.visibility = View.VISIBLE
+                            imgDelete.visibility = View.VISIBLE
+                        } else {
+                            layoutImage.visibility = View.GONE
+                            imgNote.visibility = View.GONE
+                            imgDelete.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("ERROR", "CHECK")
+        }
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
             BroadcastReceiver, IntentFilter("bottom_sheet_action")

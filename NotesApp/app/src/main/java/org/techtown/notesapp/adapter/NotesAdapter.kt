@@ -15,8 +15,10 @@ import org.techtown.notesapp.entities.Notes
 
 class NotesAdapter() :
     RecyclerView.Adapter<NotesAdapter.NotesViewHolder>() {
+
     var listener:OnItemClickListener? = null
     var arrList = ArrayList<Notes>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotesViewHolder {
         return NotesViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.item_rv_notes,parent,false)
@@ -44,7 +46,7 @@ class NotesAdapter() :
         if (arrList[position].color != null){
             holder.itemView.cardView.setCardBackgroundColor(Color.parseColor(arrList[position].color))
         }else{
-            holder.itemView.cardView.setCardBackgroundColor(Color.parseColor(R.color.ColorLightBlack.toString()))
+            //holder.itemView.cardView.setCardBackgroundColor(Color.parseColor(R.color.ColorLightBlack.toString()))
         }
 
         if (arrList[position].imgPath != null){

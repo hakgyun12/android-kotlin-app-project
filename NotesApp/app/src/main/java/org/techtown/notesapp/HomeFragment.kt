@@ -70,9 +70,26 @@ class HomeFragment : BaseFragment() {
                 recycler_view.adapter = notesAdapter
             }
         }
+
+        notesAdapter!!.setOnClickListener(onClicked)
+
         fabBtnCreateNote.setOnClickListener {
             // 새로 불러온 Fragment를 호출 할 때 사용하는 메소드
             replaceFragment(CreateNoteFragment.newInstance(), false)
+        }
+
+    }
+
+    private val onClicked = object : NotesAdapter.OnItemClickListener{
+        override fun onClicked(noteId: Int) {
+
+            var fragment:Fragment
+            var bundle = Bundle()
+            bundle.putInt("noteId", noteId)
+            fragment = CreateNoteFragment.newInstance()
+            fragment.arguments = bundle
+
+            replaceFragment(fragment, false)
         }
 
     }

@@ -250,7 +250,7 @@
         android:textSize="@dimen/_12ssp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvWebLink" />
+        app:layout_constraintTop_toBottomOf="@id/tvWebLink2" />
 
     <FrameLayout
         android:layout_width="match_parent"
